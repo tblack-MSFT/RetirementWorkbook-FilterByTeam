@@ -1,0 +1,682 @@
+{
+    "apiVersion": "2019-05-01",
+    "id": "/subscriptions/9c7ca56a-c78d-466f-83c8-f7ba8aed0458/resourceGroups/AcuityRetirementSolution/providers/Microsoft.Logic/workflows/lg-RetirementAutomation",
+    "name": "lg-RetirementAutomation",
+    "type": "microsoft.logic/workflows",
+    "location": "eastus",
+    "identity": {
+        "type": "SystemAssigned",
+        "principalId": "3ae7fc0a-f26b-4a59-a0ad-1334964897a9",
+        "tenantId": "16b3c013-d300-468d-ac64-7eda0820b6d3"
+    },
+    "properties": {
+        "provisioningState": "Succeeded",
+        "createdTime": "2025-06-24T18:47:31.83Z",
+        "changedTime": "2025-06-24T22:03:49.402Z",
+        "state": "Enabled",
+        "version": "08584508042560920991",
+        "accessEndpoint": "https://prod-00.eastus.logic.azure.com:443/workflows/da3d0520f7214896955a302b2eb5017b",
+        "definition": {
+            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {
+                "$connections": {
+                    "defaultValue": {},
+                    "type": "Object"
+                }
+            },
+            "triggers": {
+                "Recurrence": {
+                    "recurrence": {
+                        "interval": 12,
+                        "frequency": "Month",
+                        "timeZone": "Eastern Standard Time"
+                    },
+                    "evaluatedRecurrence": {
+                        "interval": 12,
+                        "frequency": "Month",
+                        "timeZone": "Eastern Standard Time"
+                    },
+                    "type": "Recurrence"
+                }
+            },
+            "actions": {
+                "HTTP_-_Azure_Query": {
+                    "runAfter": {
+                        "Initialize_variables_-_Description": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "Http",
+                    "inputs": {
+                        "uri": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources",
+                        "method": "POST",
+                        "headers": {
+                            "content-Type": "application/json"
+                        },
+                        "queries": {
+                            "api-version": "2021-03-01"
+                        },
+                        "body": {
+                            "query": "resources | extend resourceIdLower = tolower(id) | join kind = leftouter (advisorresources | where properties.extendedProperties.recommendationSubCategory contains 'ServiceUpgradeAndRetirement' | where type =~ 'microsoft.advisor/recommendations' | extend impactedResourceId = tolower(tostring(properties.resourceMetadata.resourceId)) | extend description = tostring(properties.shortDescription) | extend featureName = tostring(properties.extendedProperties.retirementFeatureName) | project impactedResourceId, description, featureName)on $left.resourceIdLower == $right.impactedResourceId | where  isnotempty(impactedResourceId) | order by ['type'] asc"
+                        },
+                        "authentication": {
+                            "type": "ManagedServiceIdentity"
+                        }
+                    },
+                    "runtimeConfiguration": {
+                        "contentTransfer": {
+                            "transferMode": "Chunked"
+                        }
+                    }
+                },
+                "Parse_JSON_-_Resource_Query": {
+                    "runAfter": {
+                        "HTTP_-_Azure_Query": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "ParseJson",
+                    "inputs": {
+                        "content": "@body('HTTP_-_Azure_Query')",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "totalRecords": {
+                                    "type": "integer"
+                                },
+                                "count": {
+                                    "type": "integer"
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "tenantId": {
+                                                "type": "string"
+                                            },
+                                            "kind": {
+                                                "type": "string"
+                                            },
+                                            "location": {
+                                                "type": "string"
+                                            },
+                                            "resourceGroup": {
+                                                "type": "string"
+                                            },
+                                            "subscriptionId": {
+                                                "type": "string"
+                                            },
+                                            "managedBy": {
+                                                "type": "string"
+                                            },
+                                            "sku": {},
+                                            "plan": {},
+                                            "properties": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "provisioningState": {
+                                                        "type": "string"
+                                                    },
+                                                    "Name": {
+                                                        "type": "string"
+                                                    },
+                                                    "Configuration": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "WebTest": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "SyntheticMonitorId": {
+                                                        "type": "string"
+                                                    },
+                                                    "Description": {
+                                                        "type": "string"
+                                                    },
+                                                    "Frequency": {
+                                                        "type": "integer"
+                                                    },
+                                                    "ValidationRules": {},
+                                                    "RetryEnabled": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "Locations": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "Id": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "Id"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "Enabled": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "Timeout": {
+                                                        "type": "integer"
+                                                    },
+                                                    "Request": {},
+                                                    "Kind": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "tags": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "Owner": {
+                                                        "type": "string"
+                                                    },
+                                                    "nonfte": {
+                                                        "type": "string"
+                                                    },
+                                                    "hidden-link:/subscriptions/9c7ca56a-c78d-466f-83c8-f7ba8aed0458/resourceGroups/rg-apim7785/providers/microsoft.insights/components/TestAppInsightTB": {
+                                                        "type": "string"
+                                                    },
+                                                    "Dev Lead": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "identity": {},
+                                            "zones": {},
+                                            "extendedLocation": {},
+                                            "resourceIdLower": {
+                                                "type": "string"
+                                            },
+                                            "impactedResourceId": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "name",
+                                            "type",
+                                            "tenantId",
+                                            "kind",
+                                            "location",
+                                            "resourceGroup",
+                                            "subscriptionId",
+                                            "managedBy",
+                                            "sku",
+                                            "plan",
+                                            "properties",
+                                            "tags",
+                                            "identity",
+                                            "zones",
+                                            "extendedLocation",
+                                            "resourceIdLower",
+                                            "impactedResourceId",
+                                            "description"
+                                        ]
+                                    }
+                                },
+                                "facets": {
+                                    "type": "array"
+                                },
+                                "resultTruncated": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "For_each": {
+                    "foreach": "@outputs('Parse_JSON_-_Resource_Query')?['body']?['data']",
+                    "actions": {
+                        "Compose": {
+                            "runAfter": {
+                                "Send_an_email_(V2)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "\n\n@{item()?['name']}\n\n@{item()?['description']}\n\n"
+                        },
+                        "Set_variable": {
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "varDescription",
+                                "value": "@split(replace(replace(string(item()?['description']),'{',''),'}',''),',')"
+                            }
+                        },
+                        "Send_an_email_(V2)": {
+                            "runAfter": {
+                                "Set_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "body": {
+                                    "To": "tblackston@microsoftcom",
+                                    "Subject": "Retire/Upgrade Resource: @{item()?['name']}",
+                                    "Body": "<p class=\"editor-paragraph\">Hello ,</p><br><p class=\"editor-paragraph\">@{item()?['name']} will</p><br>",
+                                    "Importance": "Normal"
+                                },
+                                "path": "/v2/Mail"
+                            }
+                        }
+                    },
+                    "runAfter": {
+                        "Terminate": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "Foreach"
+                },
+                "Initialize_variables_-_Description": {
+                    "runAfter": {},
+                    "type": "InitializeVariable",
+                    "inputs": {
+                        "variables": [
+                            {
+                                "name": "varDescription",
+                                "type": "array"
+                            }
+                        ]
+                    }
+                },
+                "Terminate": {
+                    "runAfter": {
+                        "For_each_1": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "Terminate",
+                    "inputs": {
+                        "runStatus": "Succeeded"
+                    }
+                },
+                "For_each_1": {
+                    "foreach": "@outputs('Parse_JSON_-_Resource_Query')?['body']?['data']",
+                    "actions": {
+                        "Parse_JSON_-_Tags_": {
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@item()?['tags']",
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "Owner": {
+                                            "type": "string"
+                                        },
+                                        "nonfte": {
+                                            "type": "string"
+                                        },
+                                        "Dev Lead": {
+                                            "type": "string"
+                                        },
+                                        "hidden-link:/subscriptions/9c7ca56a-c78d-466f-83c8-f7ba8aed0458/resourceGroups/rg-apim7785/providers/microsoft.insights/components/TestAppInsightTB": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "Set_variable_-_Desciption": {
+                            "runAfter": {
+                                "HTTP_-_Find_Group": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "varDescription",
+                                "value": "@replace(replace(split(item()?['description'],','),'}',''),'}','')"
+                            }
+                        },
+                        "Send_an_email_(V2)_-_Email_Owners": {
+                            "runAfter": {
+                                "Set_variable_-_Desciption": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "body": {
+                                    "To": "tblackston@microsoft.com",
+                                    "Subject": "Resrouce @{item()?['name']}",
+                                    "Body": "<p class=\"editor-paragraph\">Hello</p>",
+                                    "Importance": "Normal"
+                                },
+                                "path": "/v2/Mail"
+                            }
+                        },
+                        "HTTP_-_Find_Group": {
+                            "runAfter": {
+                                "Parse_JSON_-_Bearer_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "https://graph.microsoft.com/v1.0/groups?$filter=displayName%20eq%20'Sunweb'",
+                                "method": "GET",
+                                "headers": {
+                                    "cache-control": "o-cache",
+                                    "content-type": "application/json",
+                                    "Authorization": "@{body('Parse_JSON_-_Bearer_Token')?['access_token']}"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "HTTP_-_Get_Token": {
+                            "runAfter": {
+                                "Parse_JSON_-_Tags_": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "https://login.microsoftonline.com/@{item()?['tenantId']}/oauth2/v2.0/token",
+                                "method": "POST",
+                                "headers": {
+                                    "Content-Type": "application/x-www-form-urlencoded"
+                                },
+                                "body": "grant_type=client_credentials\n&client_id=1fd31c1d-34f6-4a6a-b652-fca4b5e9cf55\n&client_secret=.zm8Q~4azv49wq0LjzTTPYbgem_yzAB0KI.OxblP\n&scope=https://graph.microsoft.com/.default"
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "Parse_JSON_-_Bearer_Token": {
+                            "runAfter": {
+                                "HTTP_-_Get_Token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_-_Get_Token')",
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token_type": {
+                                            "type": "string"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer"
+                                        },
+                                        "ext_expires_in": {
+                                            "type": "integer"
+                                        },
+                                        "access_token": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "runAfter": {
+                        "Parse_JSON_-_Resource_Query": [
+                            "Succeeded"
+                        ]
+                    },
+                    "type": "Foreach"
+                }
+            },
+            "outputs": {}
+        },
+        "parameters": {
+            "$connections": {
+                "value": {
+                    "office365": {
+                        "id": "/subscriptions/9c7ca56a-c78d-466f-83c8-f7ba8aed0458/providers/Microsoft.Web/locations/eastus/managedApis/office365",
+                        "connectionId": "/subscriptions/9c7ca56a-c78d-466f-83c8-f7ba8aed0458/resourceGroups/AcuityRetirementSolution/providers/Microsoft.Web/connections/office365",
+                        "connectionName": "office365"
+                    }
+                }
+            }
+        },
+        "endpointsConfiguration": {
+            "workflow": {
+                "outgoingIpAddresses": [
+                    {
+                        "address": "13.92.98.111"
+                    },
+                    {
+                        "address": "40.121.91.41"
+                    },
+                    {
+                        "address": "40.114.82.191"
+                    },
+                    {
+                        "address": "23.101.139.153"
+                    },
+                    {
+                        "address": "23.100.29.190"
+                    },
+                    {
+                        "address": "23.101.136.201"
+                    },
+                    {
+                        "address": "104.45.153.81"
+                    },
+                    {
+                        "address": "23.101.132.208"
+                    },
+                    {
+                        "address": "52.226.216.197"
+                    },
+                    {
+                        "address": "52.226.216.187"
+                    },
+                    {
+                        "address": "40.76.151.25"
+                    },
+                    {
+                        "address": "40.76.148.50"
+                    },
+                    {
+                        "address": "20.84.29.29"
+                    },
+                    {
+                        "address": "20.84.29.18"
+                    },
+                    {
+                        "address": "40.76.174.83"
+                    },
+                    {
+                        "address": "40.76.174.39"
+                    },
+                    {
+                        "address": "4.156.27.7"
+                    },
+                    {
+                        "address": "4.156.28.117"
+                    },
+                    {
+                        "address": "4.156.25.188"
+                    },
+                    {
+                        "address": "20.242.168.24"
+                    },
+                    {
+                        "address": "4.156.241.165"
+                    },
+                    {
+                        "address": "4.156.243.170"
+                    },
+                    {
+                        "address": "4.156.242.49"
+                    },
+                    {
+                        "address": "4.156.243.164"
+                    },
+                    {
+                        "address": "52.224.145.30"
+                    },
+                    {
+                        "address": "4.156.242.92"
+                    },
+                    {
+                        "address": "4.156.243.172"
+                    },
+                    {
+                        "address": "4.156.241.191"
+                    },
+                    {
+                        "address": "4.156.241.47"
+                    },
+                    {
+                        "address": "4.156.241.229"
+                    },
+                    {
+                        "address": "4.156.242.12"
+                    },
+                    {
+                        "address": "172.212.32.196"
+                    }
+                ],
+                "accessEndpointIpAddresses": [
+                    {
+                        "address": "137.135.106.54"
+                    },
+                    {
+                        "address": "40.117.99.79"
+                    },
+                    {
+                        "address": "40.117.100.228"
+                    },
+                    {
+                        "address": "137.116.126.165"
+                    },
+                    {
+                        "address": "52.226.216.209"
+                    },
+                    {
+                        "address": "40.76.151.124"
+                    },
+                    {
+                        "address": "20.84.29.150"
+                    },
+                    {
+                        "address": "40.76.174.148"
+                    },
+                    {
+                        "address": "4.156.26.80"
+                    },
+                    {
+                        "address": "4.156.25.14"
+                    },
+                    {
+                        "address": "4.156.25.189"
+                    },
+                    {
+                        "address": "20.242.168.44"
+                    },
+                    {
+                        "address": "4.156.241.183"
+                    },
+                    {
+                        "address": "4.156.243.174"
+                    },
+                    {
+                        "address": "4.156.242.86"
+                    },
+                    {
+                        "address": "4.156.243.165"
+                    },
+                    {
+                        "address": "52.224.145.162"
+                    },
+                    {
+                        "address": "4.156.242.96"
+                    },
+                    {
+                        "address": "4.156.243.173"
+                    },
+                    {
+                        "address": "4.156.241.195"
+                    },
+                    {
+                        "address": "4.156.242.97"
+                    },
+                    {
+                        "address": "4.156.242.26"
+                    },
+                    {
+                        "address": "4.156.242.13"
+                    },
+                    {
+                        "address": "172.212.37.35"
+                    }
+                ]
+            },
+            "connector": {
+                "outgoingIpAddresses": [
+                    {
+                        "address": "40.71.249.139"
+                    },
+                    {
+                        "address": "40.71.249.205"
+                    },
+                    {
+                        "address": "40.114.40.132"
+                    },
+                    {
+                        "address": "40.71.11.80/28"
+                    },
+                    {
+                        "address": "40.71.15.160/27"
+                    },
+                    {
+                        "address": "52.188.157.160"
+                    },
+                    {
+                        "address": "20.88.153.176/28"
+                    },
+                    {
+                        "address": "20.88.153.192/27"
+                    },
+                    {
+                        "address": "52.151.221.184"
+                    },
+                    {
+                        "address": "52.151.221.119"
+                    }
+                ]
+            }
+        }
+    }
+}
