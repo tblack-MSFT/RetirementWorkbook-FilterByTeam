@@ -5,13 +5,13 @@
 This workbook was created to enable users to filter impacted resources based on organization tags. The workbook helps teams identify and manage resources that will be affected by service retirements, allowing for better planning and resource management across different teams or squads.
 
 **Requirements:**
-- A proper tag policy must be implemented in your Azure environment
-- Resources must be tagged with appropriate squad/team identifiers
-- The workbook relies on the presence of 'Squad' tags on Azure resources
+- A proper tag policy must be implemented in your Azure environment ([Learn more about tagging Azure resources](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources))
+- Resources must be tagged with appropriate squad/team identifiers (if resources are not tagged, the workbook will list them as missing tag, missing-Squad in this case)
+- The workbook relies on the presence of 'Squad' tags on Azure resources, but this can be changed within the workbook. Images below show where to change the tag name.
 
 ## Background
 
-This workbook is based on the original **Service Retirement Workbook**. The original workbook provided a comprehensive view of all retiring Azure services and their impact on resources, but lacked the ability to filter results by team or organizational unit.
+This workbook is based on the original **Service Retirement Workbook**. We simply add a dropdown that queries all the tags and only returns the Squad tags. This drop down filters based on the 'Squad' tag. This way teams/departments are able to filter for the resources that are impacted for their team/department.
 
 ## Key Changes Made
 
