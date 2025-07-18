@@ -57,6 +57,7 @@ Before deploying the ARM template, ensure you have:
 - **Resource Group**: A target resource group where the workbook will be deployed
 - **Permissions**: At least `Contributor` role on the target resource group
 - **Azure Monitor**: Access to Azure Monitor workbooks in your subscription
+- **Azure Advisor**: Access to Azure Advisor (the workbook will be linked to Azure Advisor by default)
 
 #### Deployment Methods
 
@@ -136,18 +137,19 @@ The ARM template accepts the following parameters:
 
 - **workbookDisplayName** (string): The friendly name for the workbook (must be unique within resource group)
 - **workbookType** (string): Type of workbook (default: "workbook")
-- **workbookSourceId** (string): Source identifier for the workbook
+- **workbookSourceId** (string): Source identifier that determines where the workbook appears (default: "Azure Advisor" - links the workbook to Azure Advisor)
 - **workbookId** (string): Unique identifier for the workbook resource
 
 #### Post-Deployment Steps
 
 After successful deployment:
 
-1. Navigate to **Azure Monitor** → **Workbooks** in the Azure Portal
-2. Find your deployed workbook under "My Workbooks" or the specified category
-3. Open the workbook and verify it loads correctly
-4. Test the Squad dropdown to ensure it populates with your tag values
-5. Verify that resources are properly filtered based on squad selection
+1. **Access via Azure Advisor**: Navigate to **Azure Advisor** in the Azure Portal and look for the workbook in the workbooks section (default behavior due to workbookSourceId parameter)
+2. **Access via Azure Monitor**: Alternatively, navigate to **Azure Monitor** → **Workbooks** in the Azure Portal
+3. Find your deployed workbook under "My Workbooks" or the specified category
+4. Open the workbook and verify it loads correctly
+5. Test the Squad dropdown to ensure it populates with your tag values
+6. Verify that resources are properly filtered based on squad selection
 
 #### Troubleshooting Common Issues
 
@@ -167,7 +169,7 @@ After successful deployment:
 
 1. **Deploy the ARM template** to your Azure environment using one of the methods described above
 2. **Ensure proper tagging**: Verify your resources are properly tagged with 'Squad' tags
-3. **Access the workbook**: Open the workbook in Azure Monitor → Workbooks
+3. **Access the workbook**: Open the workbook in Azure Advisor (default) or Azure Monitor → Workbooks
 4. **Filter by team**: Use the Squad dropdown to filter resources by team
 5. **Review results**: Analyze the filtered results to understand the impact of service retirements on your specific team's resources
 
